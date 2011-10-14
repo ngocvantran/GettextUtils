@@ -15,8 +15,6 @@ namespace Resx2Po
         {
             _writer = new StreamWriter(path,
                 false, new UTF8Encoding(false));
-
-            _writer.Write(Resources.Header);
         }
 
         public void Dispose()
@@ -32,14 +30,30 @@ namespace Resx2Po
 
             var groups = strings
                 .GroupBy(x => x.Source)
-                .Where(x => x.Key != string.Empty);
+                .ToDictionary(x => x.Key, x => x.ToList());
+
+            List<StringInfo> emptyStrings;
+            if (groups.TryGetValue(string.Empty, out emptyStrings))
+            {
+                foreach (var info in emptyStrings)
+                {
+                    _writer.Write("#: ");
+                    _writer.Write(info.Path);
+                    _writer.Write(":");
+                    _writer.WriteLine(info.Key);
+                }
+
+                groups.Remove(string.Empty);
+            }
+
+            _writer.Write(Resources.Header);
 
             foreach (var group in groups)
             {
                 _writer.WriteLine();
                 _writer.WriteLine();
 
-                foreach (var info in group)
+                foreach (var info in group.Value)
                 {
                     _writer.Write("#: ");
                     _writer.Write(info.Path);
@@ -53,8 +67,11 @@ namespace Resx2Po
                 _writer.Write(Escape(group.Key));
                 _writer.WriteLine("\"");
 
+                var value = group.Value
+                    .First().Value;
+
                 _writer.Write("msgstr \"");
-                _writer.Write(Escape(group.First().Value));
+                _writer.Write(Escape(value));
                 _writer.Write("\"");
             }
         }
