@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resx2Po", "Resx2Po\Resx2Po.csproj", "{1417FD32-FA3D-4B4E-AE59-DB3AC0F91507}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1417FD32-FA3D-4B4E-AE59-DB3AC0F91507}.Debug|x86.ActiveCfg = Debug|x86
+		{1417FD32-FA3D-4B4E-AE59-DB3AC0F91507}.Debug|x86.Build.0 = Debug|x86
+		{1417FD32-FA3D-4B4E-AE59-DB3AC0F91507}.Release|x86.ActiveCfg = Release|x86
+		{1417FD32-FA3D-4B4E-AE59-DB3AC0F91507}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
