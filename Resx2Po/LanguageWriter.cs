@@ -1,25 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Resx2Po.Properties;
 
 namespace Resx2Po
 {
-    internal class Writer : IDisposable
+    public class LanguageWriter : IDisposable
     {
         private readonly StreamWriter _writer;
-        private readonly HashSet<string> _written;
 
-        public Writer(string path)
+        public LanguageWriter(string path)
         {
             _writer = new StreamWriter(path,
                 false, new UTF8Encoding(false));
-
-            _written = new HashSet<string>
-            {
-                string.Empty
-            };
 
             _writer.Write(Resources.Header);
         }
@@ -30,29 +25,38 @@ namespace Resx2Po
             _writer.Dispose();
         }
 
-        public void Write(string reference,
-            string value)
+        public void Write(IEnumerable<StringInfo> strings)
         {
-            if (_written.Contains(value))
-                return;
+            if (strings == null)
+                throw new ArgumentNullException("strings");
 
-            _written.Add(value);
+            var groups = strings
+                .GroupBy(x => x.Source)
+                .Where(x => x.Key != string.Empty);
 
-            _writer.WriteLine();
-            _writer.WriteLine();
+            foreach (var group in groups)
+            {
+                _writer.WriteLine();
+                _writer.WriteLine();
 
-            value = Escape(value);
-            _writer.WriteLine(reference);
+                foreach (var info in group)
+                {
+                    _writer.Write("#: ");
+                    _writer.Write(info.Path);
+                    _writer.Write(":");
+                    _writer.WriteLine(info.Key);
+                }
 
-            _writer.WriteLine("#, c-format");
+                _writer.WriteLine("#, csharp-format");
 
-            _writer.Write("msgid \"");
-            _writer.Write(value);
-            _writer.WriteLine("\"");
+                _writer.Write("msgid \"");
+                _writer.Write(Escape(group.Key));
+                _writer.WriteLine("\"");
 
-            _writer.Write("msgstr \"");
-            _writer.Write(value);
-            _writer.Write("\"");
+                _writer.Write("msgstr \"");
+                _writer.Write(Escape(group.First().Value));
+                _writer.Write("\"");
+            }
         }
 
         private static string Escape(string value)
