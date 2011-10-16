@@ -98,7 +98,7 @@ namespace Resx2Po
         {
             _writer.Write("#: ");
             _writer.Write(path);
-            _writer.Write(':');
+            _writer.Write('\\');
             _writer.WriteLine(key);
         }
     }

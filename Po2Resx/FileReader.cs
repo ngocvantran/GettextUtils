@@ -53,16 +53,15 @@ namespace Po2Resx
 
                 if (line.StartsWith("#:"))
                 {
-                    var parts = line.Substring(3)
-                        .Split(':');
+                    line = line.Substring(3);
 
-                    if (parts.Length != 2)
-                        continue;
+                    var key = Path.GetFileName(line);
+                    var path = Path.GetDirectoryName(line);
 
                     pending.Add(new StringInfo
                     {
-                        Key = parts[1],
-                        Path = parts[0],
+                        Key = key,
+                        Path = path,
                         Language = _lang,
                     });
                 }
