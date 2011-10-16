@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
 
 namespace Po2Resx
 {
@@ -23,12 +23,31 @@ namespace Po2Resx
 
         public IList<StringInfo> Read()
         {
+            var text = string.Empty;
+            var valueDetected = false;
             var strings = new List<StringInfo>();
             var pending = new List<StringInfo>();
 
             do
             {
                 var line = _reader.ReadLine();
+                
+                if (valueDetected && StringUtils
+                    .IsValueTerminater(line))
+                {
+                    if (pending.Any())
+                    {
+                        foreach (var info in pending)
+                            info.Value = text;
+
+                        strings.AddRange(pending);
+                        pending.Clear();
+                    }
+
+                    text = string.Empty;
+                    valueDetected = false;
+                }
+
                 if (line == null)
                     break;
 
@@ -49,42 +68,22 @@ namespace Po2Resx
                 }
                 else if (line.StartsWith("msgstr"))
                 {
+                    valueDetected = true;
+
                     line = line.Substring(
                         8, line.Length - 9);
-                    line = Unescape(line);
-
-                    foreach (var info in pending)
-                        info.Value = line;
-
-                    strings.AddRange(pending);
-                    pending.Clear();
+                    text += StringUtils.Unescape(line);
+                }
+                else if (valueDetected &&
+                    line.StartsWith("\""))
+                {
+                    line = line.Substring(
+                        1, line.Length - 2);
+                    text += StringUtils.Unescape(line);
                 }
             } while (true);
 
             return strings;
-        }
-
-        private static string Unescape(string value)
-        {
-            var escapes = new Dictionary<string, string>
-            {
-                {"\\\\", "\\"},
-                {"\\\"", "\""},
-                {"\\0", "\0"},
-                {"\\a", "\a"},
-                {"\\b", "\b"},
-                {"\\f", "\f"},
-                {"\\n", "\n"},
-                {"\\r", "\r"},
-                {"\\t", "\t"},
-                {"\\v", "\v"},
-            };
-
-            var sb = new StringBuilder(value);
-            foreach (var pair in escapes)
-                sb.Replace(pair.Key, pair.Value);
-
-            return sb.ToString();
         }
     }
 }
