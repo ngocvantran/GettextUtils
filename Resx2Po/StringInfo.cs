@@ -5,6 +5,18 @@ namespace Resx2Po
     public class StringInfo
     {
         /// <summary>
+        /// Gets the context.
+        /// </summary>
+        public string Context
+        {
+            get
+            {
+                return Path.GetHashCode() +
+                    ":" + Key;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the key.
         /// </summary>
         /// <value>

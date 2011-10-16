@@ -28,50 +28,39 @@ namespace Resx2Po
             if (strings == null)
                 throw new ArgumentNullException("strings");
 
-            var groups = strings
-                .GroupBy(x => x.Source)
-                .ToDictionary(x => x.Key, x => x.ToList());
+            var items = strings.ToList();
 
-            List<StringInfo> emptyStrings;
-            if (groups.TryGetValue(string.Empty, out emptyStrings))
+            var empties = items
+                .Where(x => x.Source == string.Empty)
+                .ToList();
+
+            foreach (var empty in empties)
             {
-                foreach (var info in emptyStrings)
-                {
-                    _writer.Write("#: ");
-                    _writer.Write(info.Path);
-                    _writer.Write(":");
-                    _writer.WriteLine(info.Key);
-                }
+                WriteKey(empty.Path, empty.Key);
 
-                groups.Remove(string.Empty);
+                items.Remove(empty);
             }
 
             _writer.Write(Resources.Header);
 
-            foreach (var group in groups)
+            foreach (var item in items)
             {
                 _writer.WriteLine();
                 _writer.WriteLine();
 
-                foreach (var info in group.Value)
-                {
-                    _writer.Write("#: ");
-                    _writer.Write(info.Path);
-                    _writer.Write(":");
-                    _writer.WriteLine(info.Key);
-                }
-
+                WriteKey(item.Path, item.Key);
                 _writer.WriteLine("#, csharp-format");
 
-                _writer.Write("msgid \"");
-                _writer.Write(Escape(group.Key));
+                _writer.Write("msgctxt \"");
+                _writer.Write(item.Context);
                 _writer.WriteLine("\"");
 
-                var value = group.Value
-                    .First().Value;
+                _writer.Write("msgid \"");
+                _writer.Write(Escape(item.Source));
+                _writer.WriteLine("\"");
 
                 _writer.Write("msgstr \"");
-                _writer.Write(Escape(value));
+                _writer.Write(Escape(item.Value));
                 _writer.Write("\"");
             }
         }
@@ -103,6 +92,14 @@ namespace Resx2Po
             }
 
             return sb.ToString();
+        }
+
+        private void WriteKey(string path, string key)
+        {
+            _writer.Write("#: ");
+            _writer.Write(path);
+            _writer.Write(':');
+            _writer.WriteLine(key);
         }
     }
 }
